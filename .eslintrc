@@ -1,0 +1,12 @@
+{
+  "parser": "babel-eslint",
+  "extends": "standard",
+  "rules": {
+    "semi": [
+      "error",
+      "always"
+    ],
+    "single": "off",
+    "double": "off"
+  }
+}
