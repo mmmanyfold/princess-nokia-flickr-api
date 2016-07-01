@@ -1,5 +1,5 @@
 import express from 'express';
-// import R from 'ramda';
+import R from 'ramda';
 import bodyParser from 'body-parser';
 import Flickr from 'flickr-sdk';
 
@@ -17,22 +17,46 @@ const flickr = new Flickr({
 app.use(bodyParser.json());
 
 // https://www.flickr.com/services/api/misc.urls.html
-// https://farm8.staticflickr.com/7443/27623501851_1df7d7efcc_m.jpg
 function getUserAlbums() {
 	return flickr
 		.request()
-		// .galleries('72157667142546453') // Album ID
 		.people("143341792@N05")
-		// .media("27623501851")
 		.albums()
 		.get();
 }
 
+function getPhotosByAlbumId(id) {
+	return flickr
+		.request()
+		.albums(id)
+		.media()
+		.get();
+}
 
 api.get('/photos', async function (req, res) {
 	try {
 		let {_, body} = await getUserAlbums();
-		res.send(body);
+		let albumTitles = R.pluck('_content')(R.pluck('title')(body.photosets.photoset));
+		let albumIds = R.pluck('id')(body.photosets.photoset);
+		let urls = albumIds.map(async function (_id, i) {
+			try {
+				let {_, body} = await getPhotosByAlbumId(_id);
+				let {photo} = body.photoset;
+				let urls = photo.map(photo => {
+					let {farm, server, id, secret} = photo;
+					return `https://farm${farm}.staticflickr.com/${server}/${id}_${secret}.jpg`;
+				});
+				return {
+					name: albumTitles[i],
+					photos: urls
+				};
+			} catch (err) {
+				res.status(404).send(err);
+			}
+		});
+		return Promise.all(urls)
+			.then(responses => res.send(responses))
+			.catch(err => res.status(404).send(err));
 	} catch (err) {
 		res.status(404).send(err);
 	}
