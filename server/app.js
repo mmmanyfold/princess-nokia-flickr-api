@@ -2,6 +2,7 @@ import express from 'express';
 import R from 'ramda';
 import bodyParser from 'body-parser';
 import Flickr from 'flickr-sdk';
+import cors from 'cors';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,7 +34,7 @@ function getPhotosByAlbumId(id) {
 		.get();
 }
 
-api.get('/photos', async function (req, res) {
+api.get('/photos', cors(), async function (req, res) {
 	try {
 		let {_, body} = await getUserAlbums();
 		let albumTitles = R.pluck('_content')(R.pluck('title')(body.photosets.photoset));

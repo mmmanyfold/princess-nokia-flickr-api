@@ -23,6 +23,7 @@
     "babel-preset-node5": "^11.1.0",
     "babel-register": "^6.8.0",
     "body-parser": "^1.15.1",
+    "cors": "^2.7.1",
     "express": "^4.13.4",
     "flickr-sdk": "^1.2.2",
     "ramda": "^0.21.0"
