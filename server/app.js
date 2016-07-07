@@ -36,6 +36,7 @@ function getPhotosByAlbumId(id) {
 
 api.get('/photos', cors(), async function (req, res) {
 	try {
+		let size= req.query.size || 'm';
 		let {_, body} = await getUserAlbums();
 		let albumTitles = R.pluck('_content')(R.pluck('title')(body.photosets.photoset));
 		let albumIds = R.pluck('id')(body.photosets.photoset);
@@ -45,7 +46,7 @@ api.get('/photos', cors(), async function (req, res) {
 				let {photo} = body.photoset;
 				let urls = photo.map(photo => {
 					let {farm, server, id, secret} = photo;
-					return `https://farm${farm}.staticflickr.com/${server}/${id}_${secret}.jpg`;
+					return `https://farm${farm}.staticflickr.com/${server}/${id}_${secret}_${size}.jpg`;
 				});
 				return {
 					name: albumTitles[i],
